@@ -20,7 +20,7 @@ let height = +svg.attr('height');
 let URL = 'https://raw.githubusercontent.com/DealPete/forceDirected/master/countries.json';
 
 // Define boundary radius for distance from edge to use in tick function
-let radius = 6;
+let radius = 16;
 
 // Create simulation
 var simulation = d3.forceSimulation()
@@ -53,6 +53,20 @@ d3.json(URL, function(error, graph) {
         .on('start', dragstarted)
         .on('drag', dragged)
         .on('end', dragended))
+      .on('mouseover', function(d) {
+        d3.select('.tooltip')
+          .html('<span>' + d.country + '</span>')
+          .style('visibility', 'visible')
+      })
+      .on('mousemove', function() {
+        d3.select('.tooltip')
+          .style('top', (d3.event.pageY - 30) + 'px')
+          .style('left', (d3.event.pageX + 5) + 'px')
+      })
+      .on('mouseleave', function(d) {
+        d3.select('.tooltip')
+          .style('visibility', 'hidden')
+      })
   
   node.append('title')
     .text(d => d.country);
@@ -66,7 +80,6 @@ d3.json(URL, function(error, graph) {
   // Add the links to the simulation
   simulation.force('link')
     .links(graph.links)
-    .size([width, height]);
 
   function ticked() {
     link
@@ -79,6 +92,22 @@ d3.json(URL, function(error, graph) {
         .style('x', d => d.x = Math.max(radius, Math.min(width - radius, d.x - 8)))
         .style('y', d => d.y = Math.max(radius, Math.min(height - radius, d.y - 8)))
   }
+
+  // Add tooltip
+  d3.select('body').append('div')
+      .attr('class', 'tooltip')
+      .style('position', 'absolute')
+      .style('z-index', '10')
+      .style('background-color', '#333')
+      .style('opacity', '0.8')
+      .style('color', 'white')
+      .style('font-size', '14px')
+      .style('font-family', 'sans-serif')
+      .style('visibility', 'hidden')
+      .style('text-align', 'center')
+      .style('padding', '5px')
+      .style('border-radius', '4px')
+
 });
 
 function dragstarted(d) {
